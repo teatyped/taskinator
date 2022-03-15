@@ -6,6 +6,14 @@ var pageContentEl = document.querySelector("#page-content")
 var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
 
+
+
+var task =[];
+
+
+
+
+
 var taskFormHandler = function(event){
 
     event.preventDefault();
@@ -29,34 +37,22 @@ var taskFormHandler = function(event){
         // No data attribute, so create object data as an object then pass to create taskEl function
         var taskDataObj = {
             name: taskNameInput,
-            type: taskTypeInput
+            type: taskTypeInput,
+            status: "to-do"
 
         };
-        
         // send it as an argument to createTaskEl 
         createTaskEl(taskDataObj);
     }
-
-
 };
 
 
-var completeEditTask = function(taskName, taskType, taskId){
-    // find the matching task list item
-    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
-
-    // set new values
-    taskSelected.querySelector("h3.task-name").textContent = taskName;
-    taskSelected.querySelector("span.task-type").textContent = taskType;
-
-    alert("Task Updated!");
-    formEl.removeAttribute("data-task-id");
-    document.querySelector("#save-task").textContent = "Add Task";
-}
-
-
-
 var createTaskEl = function(taskDataObj){
+
+
+    console.log(taskDataObj);
+console.log(taskDataObj.status);
+
 
     // create list item
     var listItemEl = document.createElement("li");
@@ -73,6 +69,9 @@ var createTaskEl = function(taskDataObj){
     listItemEl.appendChild(taskInfoEl);
 // add entire list item to list 
 
+    taskDataObj.id = taskIdCounter;
+    task.push(taskDataObj); // grabs taskDataObj and stores it into task arry
+
     var taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
 
@@ -82,6 +81,7 @@ var createTaskEl = function(taskDataObj){
     taskIdCounter ++;
 
 };
+
  var createTaskActions = function(taskId){
 // div container that will hold button elements 
     var actionContainerEl = document.createElement("div");
@@ -136,13 +136,54 @@ var editTask = function(taskId){
     document.querySelector("#save-task").textContent = "Save Task";
     formEl.setAttribute("data-task-id", taskId);
     
- }
+};
 
 var deleteTask = function(taskId){
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
     console.log(taskSelected);
     taskSelected.remove();
-}
+
+// create new array to hold updated list of task
+    var updatedTaskArr = [];
+
+    // loop through current tasks
+    for( var i = 0; i < task.length; i++){
+        // if tasks[i].id dose not match the value of taskId, lets keep that task and push it into the new array
+        if (task[i].id !== parseInt(taskId)){
+            updatedTaskArr.push(task[i]);
+        }
+    }
+    
+    //reassign task array to be the same as updatedTaskArr
+    tasks = updatedTaskArr;
+
+};
+
+
+
+var completeEditTask = function(taskName, taskType, taskId){
+    // find the matching task list item
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+    // set new values
+    taskSelected.querySelector("h3.task-name").textContent = taskName;
+    taskSelected.querySelector("span.task-type").textContent = taskType;
+
+    alert("Task Updated!");
+    formEl.removeAttribute("data-task-id");
+    document.querySelector("#save-task").textContent = "Add Task";
+
+    // loop through task array and task object with new content
+    for (var i = 0; i < task.length; i++){
+        if (task[i].id === parseInt(taskId)){
+            task[i].name = taskName;
+            task[i].type = taskType;
+        }
+    };
+
+
+};
+
 
 var taskButtonHandler = function(event){
 
@@ -184,7 +225,14 @@ var taskStatusChangeHandler = function(event){
         tasksCompletedEl.appendChild(taskSelected);
     }
 
+// updating task status in task array
+    for(var i = 0; i < task.length; i++){
+        if(task[i].id === parseInt(taskId)){
+            task[i].status = statusValue;
+        }
+    }
 
+    console.log(task); //testing only
 };
 
 
